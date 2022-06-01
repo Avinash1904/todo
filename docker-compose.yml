@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  database:
+    image: postgres
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_HOST_AUTH_METHOD: password
+    ports:
+      - 5432:5432
+    container_name: postgres_todo_db
+
+  app:
+    image: python:3.7
+    volumes:
+      - .:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DATABASE_URL=postgres://postgres:postgres@database:5432/postgres
+      - CACHE_URL=redis://cache:6379/0
+      - BROKER_URL=redis://cache:6379/1
+      - WEB_CONCURRENCY=2
+      - DJANGO_SUPERUSER_PASSWORD=admin
+      - DJANGO_SUPERUSER_EMAIL=admin@admin.com
+
+    command: |
+      sh -c '
+      cd /app
+      pip install --upgrade pip
+      make deps
+      make migrate
+      python manage.py createsuperuser --noinput
+      python manage.py runserver 0.0.0.0:8000
+      '
+    ports:
+      - "8000:8000"
+    depends_on:
+      - database

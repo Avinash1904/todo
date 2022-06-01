@@ -1,0 +1,1 @@
+{"buildTargets":["deps","makemigrations","migrate","run","startapp"],"launchTargets":[],"customConfigurationProvider":{"workspaceBrowse":{"browsePath":[],"compilerArgs":[]},"fileIndex":[]}}
